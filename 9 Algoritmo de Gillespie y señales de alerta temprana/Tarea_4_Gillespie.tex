@@ -1,0 +1,114 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage{etex}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage[all]{xy}
+\usepackage{color}
+\usepackage{comment} 
+\usepackage{fullpage}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+%\usepackage{hyperref}
+\usepackage[T1]{fontenc} 
+\usepackage{mathptmx} 
+\usepackage{times}
+\usepackage{mathptm}
+\usepackage{pdfpages}
+\definecolor{lightgray}{gray}{0.9}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{lscape}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{setspace}
+\usepackage{caption}
+\usepackage[utf8]{inputenc}
+\usepackage{framed}
+\usepackage{chemformula}
+\usepackage{amssymb}
+\usepackage{fullpage}
+%% to make the page really big
+\setlength{\evensidemargin}{-0.25in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\oddsidemargin}{-0.25in}
+\setlength{\paperheight}{11in}
+\setlength{\paperwidth}{8.5in}
+\setlength{\tabcolsep}{0in}
+\setlength{\textheight}{9.5in}
+\setlength{\textwidth}{7in}
+\setlength{\topmargin}{-0.3in}
+\setlength{\topskip}{0in}
+\setlength{\voffset}{0.1in}
+\let\oldemptyset\emptyset
+\let\emptyset\varnothing
+\usepackage{listings}
+
+\onehalfspace
+
+\title{Modelos estocásticos: Algoritmo de Gillespie y señales de alerta temprana de un modelo bifurcante}
+\author{Elisa Dom\'{i}nguez H\"{u}ttinger}
+
+
+\begin{document}
+
+ \maketitle
+
+
+En su artículo de 2002 \cite{Elowitz2002}, Elowitz \textit{et al} reportan, quizás por vez primera,  mediciones de los niveles de expresión de la proteína verde fluorscente (GFP, por sus siglas en inglés, \textit{Green Flourescent Protein}) de cada una de las células bacterianas en un cultivo celular. Estos datos les permiten constiuir empiricamente las distribuciones poblacionales de los niveles de expresión de  la GFP. 
+Desde entonces, se han acentuado los esfuerzos y aportaciones teóricos dirigidos a entender \textit{de dónde surgen / emergen estas distribuciones poblacionales}.
+Una de las posibles fuentes de ruido / generador de variabilidad en este tipo de sistemas celulares es el 
+%Además, el método exprimental propuesto por este artículo les permite dicernir entre dos tipos de ruido:
+%\begin{enumerate}
+ %\item 
+ \textbf{ruido intrínseco}. Éste se debe a que las interacciones bioquímicas que regulan los niveles de expresión genética son procesos estocásticos. 
+ %$\item \textbf{Extrínseco}, debido a las flucutaciones entre células en la cantidad/concentración de los componentes de la maquinaria bioquímica que regula la expresión genética.
+ %\end{enumerate}
+ %comunidad científica en biología de sistemas  
+En esta práctica, vamos a simular este proceso estocástico de producción y decaimiento de la GFP.
+Para ello, utilizaremos el algoritmo de Gillespie \cite{Gillesple1977}. % ¡Manos a la obra!
+
+\begin{enumerate}
+\item El sistema bioquímico de formación y degradación de la GFP a considerar en esta práctica está dado por las reacciones representadas por: \\
+\ch{$\emptyset$ ->[ $k_1$ ] GFP ->[ $k_2$ ] $\emptyset$}. Describe con tus palabras estas reacciones.
+\item Ignoremos por un momento la cuestión estocástica. Describe este sistema con una Ecuación Diferencial Ordinaria. Esta ecuación, ¿tiene solución analítica? Si sí, ¿cuál es?
+\item Ahora, elije una condición inicial y valores para los parámetros. Utilizando \verb|R| o \verb|Matlab|, simula estocásticamente el sistema (una iteración).  %Puedes utilizar el algoritmo de Gillespie (\textit{event driven}) o una versión más \textit{naive (time-driven)}. Muestra tu gráfica.
+\item Simula ahora la ecuación determinista, y compara con su contraparte estocástica. ¿se parecen?   Argumenta, basándote en la gráfica que obtengas. 
+\item Vuelve a simular estocásticamente el sistema, utlizando las mismas condiciones iniciales y los mismos parámetros. Esta realización, ¿se parece a tu primer simulación? En comparación, ¿qué sucede si simulas nuevamente tu ecuación diferencial determinista? Argumenta,  basándote en la gráfica que obtengas.
+\item  Simula varias veces más (mínimo 50) tu sistema estocástico, guardando cada vez el vector dinámico que obtengas.  Saca el promedio poblacional. ¿Se parece a  la dinámica de GFP determinista? ¿qué pasa si aumentas/ disminuyes el número de iteraciones? Argumenta,  basándote en la gráfica que obtengas. [\textbf{Hint:} Recuerda que, si utilizas el algoritmo de Gillespie para simular dinámicamente el sistema, comparar las diferentes trayectorias de GFP(t) va a requerir regularizar tus vectores GFP(t) en una gradilla uniforme. Si usas \verb|Matlab|, puedes usar \verb|interpol| para ello (aunque no es la solución más elegante). Si utilizas \verb|R|, puedes utilizar la función (adaptada de: \cite{Wilkinson2006}):
+\begin{framed}
+\begin{lstlisting}[language=R]
+discretize <- function(out){
+  events=length(out$t)
+  start=0; end=out$t[events]; dt=0.01 
+  len=(end-start)%/%dt 
+  x=vector("numeric", len) 
+  target=0; t=0; j=1; 
+  for(i in 1:events){
+    while (out$t[i]>=target){
+      x[j]=out$x[i] 
+      j=j+1; target=target+dt
+      t[j]=target
+      } } return(list(tdisc=t, xdisc=x))  }
+  \end{lstlisting}
+\end{framed}
+%¿Notas algun aumento o disminución significativos en la desviación estándard cuando la graficas a lo largo del tiempo?
+\item Finalmente, obtén la distribución poblacional para el tiempo final de tu simulación estocástica. Compara la media poblacional que obtengas con el estado estacionario del sistema determinista. Argumenta,  basándote en la gráfica que obtengas. (Nota: simula tu modelo estocástico por \textit{suficiente} tiempo - y argumenta a qué nos referimos con ''suficiente tiempo''.
+\end{enumerate}
+
+
+\section{Pregunta adicional: señales de alerta temprana en un modelo biestable}
+
+Considera el modelo de Angeli \cite{Angeli2004} estudiado anteriormente.  Investiga si las bifurcaciones de este modelo presentan señales de alerta temprana.
+
+
+
+\bibliographystyle{ieeetr} 
+
+\bibliography{C:/Users/Elisa/Dropbox/Postdoc_2015/Literature/library}
+
+\end{document}
+
+
+

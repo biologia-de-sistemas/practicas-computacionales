@@ -1,0 +1,14 @@
+%%
+library(deSolve)
+library(sensitivity)
+library(checkmate)
+library(ODEnetwork)
+library(ODEsensitivity)
+library(vioplot)
+library(rootSolve)   # newton() and continue() call steady()
+library(FME)
+library(GillespieSSA)
+library(plot3D)
+
+
+% Codigo 

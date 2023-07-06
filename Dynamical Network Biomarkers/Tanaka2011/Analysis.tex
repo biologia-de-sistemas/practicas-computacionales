@@ -1,0 +1,135 @@
+\documentclass[12pt,twoside]{book}
+%\usepackage[spanish,es-tabla]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+%\spanishdecimal{.}
+\usepackage{color}
+\usepackage[a4paper,
+width = 15cm,
+top    = 2.5cm,
+bottom = 2.5cm]{geometry} %margenes y tamaño de páginas
+\usepackage[citecolor = red, 
+			urlcolor  = green]{hyperref} %referencias
+\usepackage{setspace} %modificar el interlineado
+\usepackage{fancyhdr} %Encabezados y pies de página
+\usepackage[font=scriptsize]{caption}%Reducir el tamaño del caption en las figuras
+\usepackage{url}
+\usepackage{enumitem} %interlineado en enumerate
+
+\definecolor{jade}{rgb}{0.0, 0.66, 0.42}
+\newcommand{\dop}[1]{{\color{jade}  \textbf{[DOP:} #1]}}
+
+\begin{document}
+
+\today
+
+\begin{center}
+\Large{\textbf{Tanaka model analysis}}\\
+\end{center}
+
+\textit{Tanaka, R. J., Ono, M., \& Harrington, H. A. (2011). Skin barrier homeostasis in atopic dermatitis: feedback regulation of kallikrein activity. PloS one, 6(5).}\\
+
+As in the Chen model, I made the analysis using Grindr. Firstly, I transformed the deterministic model to a stochastic one by adding additive noise. The functions \verb|run| and the option \verb|after|, allowed me to do this easily.
+
+\section*{Observations}
+
+\subsection*{Flickering}
+
+To analyse this model, I chose the noise magnitude as $\sigma = 0.2$, set the integration time at the Mean First Passage Time $t = 192$, and the initial conditions at the corresponding steady-state. This election of $\sigma$ caused flickering on the standard deviation behaviour (see Figure~\ref{HighSD}) which could be attributed to a jump between vaccines of attraction.\\
+ 
+
+\begin{figure}[h]
+\begin{minipage}[b]{0.5\linewidth}
+\centering
+\includegraphics[width=\linewidth]{SD_S02_25Feb2020_DOP}
+    \small{(a)} 
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.5\linewidth}
+\centering
+\includegraphics[width=\linewidth]{SD_S001_25Feb2020_DOP}
+    \small{(b)} 
+\end{minipage}
+\caption{\textbf{Standard deviation with different noise magnitudes.} Figures show the curves of SDs for the variables against the stimulus S. (a) Setting the noise magnitude as $\sigma=0.2$ the systems shows flickering in a width region of parameters. (b) When the noise magnitude is smaller, the flickering region became narrower.}
+\label{HighSD}
+\end{figure}
+
+\subsubsection*{How to solve the flickering problem}
+
+There are two options to solve this problem: (1) cut the trajectories to be sure that they are not converging to the other steady-state (2) reduce the noise intensity. \\
+
+\begin{enumerate}
+\item Calculating the passage time\\
+
+The main idea, in this case, is to obtain a time $t^*$ where the system is near the second steady-state, collect this times for one simulation for each parameter value, and store the $t^*$'s to calculate the standard deviations over the truncated trajectories. To do this, we need to do the following:
+	
+	\begin{enumerate}
+	\item Create a 1xn vector (lets called it $PT_{vec}			$), where $n=$ length of $P$.
+	\item Create six (one for each variable) $n$x$m$ 			matrices, where $n=$ length of $P$, $m=						\Delta t*t_{int}$ and $t_{int}$ is the integration 			time (it must be a long time).
+	\item Simulate one trajectory $T_i$ for each value 			of the stimulus and store the corresponding output 			in the six matrices. For each $T_i$:\\
+		\begin{enumerate}
+		\item Collect the time $t^*$ in which the output 		is at $\epsilon$ distance from the second 					steady state.
+		\item  Locate $t^*$ in the matrices (it must be 			at one column).
+		\item Store the value of $t^*$ in $PT_{vec}$
+		\end{enumerate}
+	\item One we have filled $PT_{vec}$, we use this 			information to truncate all the $T_1$'s to guarantee 	that $T_i$ is not converging to the second steady 			state. 
+	\item Finally, calculate the standard deviation over 	the truncated trajectories. 
+	\end{enumerate}
+
+\item Reduce the noise intensity\\
+
+	This option is easier. Here we just had to decrease the noise intensity to narrow the region in which the flickering appeared. 
+
+\end{enumerate} 
+
+\section*{Complete analysis}
+
+\subsection*{General observations}
+
+\begin{figure}[h]
+\begin{minipage}[b]{0.5\linewidth}
+\centering
+\includegraphics[width=\linewidth]{SD_26Feb20_DOP}
+    \small{(a)} 
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.5\linewidth}
+\centering
+\includegraphics[width=\linewidth]{Abs(PCC)_26Feb20_DOP}
+    \small{(b)} 
+\end{minipage}
+\caption{\textbf{Standard deviation and Pearson's Correlation Coefficient.} (a) Shows the curves of SDs for the variables against the stimulus S, which indicate that the tendency of $P$ and $P^*$. (b) Shows the PCC between every two pair of variables.}
+\label{FisrtsObs}
+\end{figure}
+
+To find the dominant group, I calculated the standard deviation of each variable simulating one trajectory for each parameter value. I saw that the SD of $P$ and $P^*$ are the ones who increase the more near the bifurcation (see Figure~\ref{FisrtsObs}(a)). For this reason, I made the hypothesis that these two variables comprise the Dynamical Network Biomarker. Next, I computed the PCC for ever pair of variables. In this analysis, I found that the PCC$(P,P^*)$ is very strong (see Figure~\ref{FisrtsObs}(b)). \\
+
+\dop{Aquí me sigue haciendo mucho ruido que el sistema no se comporte como dice en el artículo, es decir, que para las variables dentro de la DNB el promedio de los PCC debe crecer en valor absoluto y los otros decrecer, pero yo no veo que vaya a pasar eso.}
+
+\subsection*{$P^*$ \& $P$ analysis}
+
+Supposing that $P$ and $P^*$ are the variables in the DNB, I continued with the computation of the composite index. One important observation is that the average Pearson's Correlation Coefficient of molecules between this group and any others, does no decreases in absolute value. For this reason, I calculated the normalized composite index, \textit{i.e}, $I = SD_d*PCC_d$, where $SD_d$ is the average SD of the dominant group and $PCC_d$ is the average PCC of the dominant group in absolute value. In Figure~\ref{PaP}, we can see that the composite index drastically increases near the bifurcation.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{CompIndexPPa_26Feb20_DOP}
+\caption{\textbf{Composite index for $P$ and $P^*$.}}
+\label{PaP}
+\end{figure}
+
+\clearpage
+
+\subsection*{$P^*$ \& $K^*$ analysis}
+
+In the previous section, I supposed that the DNB was comprised of $P$ and $P^*$. In this section, I will assume that $P^*$ and $K^*$ are the two variables in the dominant group. This is because these variables are the ones that can be measured in the laboratory or by a doctor. In Figure~\ref{PaKa} we can see that the composite index also increases near the bifurcation. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{CompIndexKaPa_26Feb20_DOP}
+\caption{\textbf{Composite index for $K^*$ and $P^*$.}}
+\label{PaKa}
+\end{figure}
+
+
+\end{document}

@@ -1,0 +1,122 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage{etex}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage[all]{xy}
+\usepackage{color}
+\usepackage{comment} 
+\usepackage{fullpage}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+%\usepackage{hyperref}
+\usepackage[T1]{fontenc} 
+\usepackage{mathptmx} 
+\usepackage{times}
+\usepackage{mathptm}
+\usepackage{pdfpages}
+\definecolor{lightgray}{gray}{0.9}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{lscape}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{setspace}
+\usepackage{caption}
+\usepackage[utf8]{inputenc}
+\usepackage{framed}
+
+\onehalfspace
+
+
+\title{ 
+\textbf{Sistemas continuos bi-estables / híbridos}}
+
+\author{Elisa Dom\'{i}nguez H\"{u}ttinger}
+
+
+\begin{document}
+
+ \maketitle
+
+
+
+
+\section{Construcción y análisis de un sisetma multiestable - equivalente contínuo}
+
+
+Las celuals T se diferencian de manera irreversible. Este proceso es controlado por el regulador transripcional maestro, Gata3, que es inducido por 
+citocinas pro-inflamatorias, como IL4. 
+En 2002, H\"{o}fer \textit{et al} \cite{Hofer2002} propusieron el primer modelo matemático que describe este proceso, con un modelo matmático muy  sencillo, representado en la ecuación \ref{eq: Hoefer_model}.
+
+
+\begin{equation}
+\frac{d{{\rm [Gata3(t)]}}}{dt}=\alpha{[IL4]} + \frac { \kappa_{\rm G} {\rm[Gata3(t)]}^{2}} {1+{\rm [Gata3(t)]}^{2}}-\kappa {\rm[Gata3(t)]}.
+\label{eq: Hoefer_model}
+\end{equation}
+
+Considerando los parámetros nominales de \cite{Hofer2002} ($\alpha=0.02$, $\kappa_{\rm G} =5$, $\kappa = 1$):
+
+\begin{enumerate}
+\item Describe con tus palabras las reacciones consideradas en este modelo. \textbf{Hint:} Puedes empezar dibujando a Gata3 como nodo de una red, con aristas de entrada y de salida.
+\item Integra numéricamente la ecuación \ref{eq: Hoefer_model}, considerando diferentes condiciones iniciales Gata3(0), primero para un valor de IL4=1, y posteriormente, para IL4=5. Discute tus resultados.
+\item Construye el diagrama de bifurcacion de Gata3 (estado estacionario) en funcion del parametero de bifurcacion IL4 (considerando el rango ${IL4}= [0, 10]$). Puedes hacerlo de manera analitica, usando \verb|Matematica|, o numerica, usando \verb|Grind.R|. Discute tus resultados.
+\item ¿qué diferencias/similitudes encuentras con la ecuación 1 de \cite{Scheffer2001}?
+\end{enumerate}
+
+
+\section{Sistemas hibridos: Análisis de puntos focales} 
+
+
+La epidermis está constantemente expuesta a estrés ambiental, como por ejemplo patógenos. Cuando los patógenos penetran en exeso las capas más externas de la piel (llamada barrera epitelial), se desencadena una respuesta inmune, que, por un lado, disminuye la carga patogénica (por ejemplo, por inducción de la producción de antibióticos naturales), pero por el otro, debilita el tejido (por ejemplo, por la inducción de la degradación de componentes celulares y la inbibición de la recuperación de la barrera epitelial), permitiendo la infiltración de más estímulos patogénicos. Mantener el balance entre el combate a patógenos y la cohesión del tejido es importante para manterner la homeostasis, pues se ha observado que una piel demasiado permeable y/o un debilitamiento en el combate a patógenos puede llevar al desarrollo de enfermedades de la piel, como por ejemplo la dermatitis atópica. En el artículo \cite{Dominguez-Huttinger2016a} se propone un modelo matemático que describe la red de regulación de los patógenos que invaden la piel. En este modelo (\ref{eq: Hybrid_AD_aggravation_model_Slow_dynamics}, se  consideran las interacciones dinámicas entre los patógenos infiltrados ($P(t)$) y la barrera epidérmica ($B(t)$), así como la activación tipo \textit{switch biestable} de la respuesta inmune por $P(t)$, mediada por receptores del sistma inmune innato $R(t)$ (que inducen la secreción de antibióticos naturales y también la inhibición de la recuperación de la barrera epidérimica) y por las proteasas $K(t)$ (que inducen la  degradación de la barrera epidérmica)  (ecuación \ref{eq: Approximation_of_switch}):
+
+\begin{subequations}
+    \begin{align}
+    % Pathogen load
+    \frac{dP(t)}{dt} &= \underbrace{P_{\rm env}\frac{\kappa_P}{1+\gamma_{\rm B} B(t)}}_\text{Infiltración de patógenos}  -\underbrace{ \alpha_I R(t)P(t)}_\text{muerte por antibióticos naturales}-\underbrace{\delta_{\rm P}P(t)}_\text{muerte natural}, \\
+    % Barrier function
+    \frac{dB(t)}{dt}&=\underbrace{\kappa_B \frac{1}{1+\gamma_{\rm R} R(t)}
+    \left(1-B(t)\right)}_\text{recuperación (representación fenomenológica)} -\underbrace{\delta_B K(t)B(t)}_\text{degradación por proteasas}
+        \end{align}
+    \label{eq: Hybrid_AD_aggravation_model_Slow_dynamics}
+\end{subequations}
+
+
+\begin{equation}
+(R(t),K(t))= 
+\begin{cases}
+(0, 0 ) \mbox{ if } P(t)<P^- \mbox{ or }  P^- \leq P(t) \leq P^+ \mbox{ and } R(t^- )=R_{off} ,\\
+(R_{on},K_{on}=m_{on} P(t)-\beta)  \mbox{ if }  (P(t)>P^+)  \mbox{ or }  (P^-\leq P(t)\leq P^+  \mbox{ and }  R(t^- )=R_{on})
+\end{cases}
+ \label{eq: Approximation_of_switch}
+\end{equation}
+
+
+
+\begin{enumerate}
+\item El acople entre las ecuaciones diferenciales \ref{eq: Hybrid_AD_aggravation_model_Slow_dynamics} y la ecuación algebráica \ref{eq: Approximation_of_switch} corresponde a un sistema híbrido, que presupone una separación de escalas temporales. ¿Cuáles son las variables del modelo que se asumen que cambian significativamente (de hecho, infinitamente) más rápido que las otras? ¿Es válida esta aproximación, asumiendo que se sabe que $S(t)$ y $B(t)$ cambian mucho más lentamente (de días a semanas) que $R(t)$ y $K(t)$ (minutos a horas)? 
+\item ¿Por qué decimos que la recuperación de la barrera está modelada de manera fenomenológica? ¿Qué tipo de sistemas biológicos presentan (auto)recuperación, y cómo los modelarías? \textbf{Hint:} piensa en la adaptación perfecta.
+\item La ecuación \ref{eq: Approximation_of_switch} es una aproximación fenomenológica de un diagrama de bifurcación bi-estable. Haz un esquema de este diagrama de bifurcación, anotando los parámetros de bifucación $P^+$, $P^-$. ¿Qué tipo de sistemas biológicos presentan bi-estabilidad? Da un ejemplo de un modelo mecanisita que presente este comportamiento.
+\item ¿Qué comportamientos cualitativos puede presentar el sistema híbrido, dado por ecuaciones \ref{eq: Hybrid_AD_aggravation_model_Slow_dynamics} y \ref{eq: Approximation_of_switch}? ¿De qué depende? (\textbf{Hint:} piensa en los puntos focales de los sub-sistemas) 
+\item Explora los efectos de alteraciones de $\kappa_P$ y $\alpha_{I}$ sobre el comportamiento a largo plazo del sistema híbrido.  \textbf{Hint:}  Usa \verb|R| para variar sistemáticamente  los valores de estos dos parámetros de bifurcación, $\kappa_P=[0,1]$ y $\alpha_{I}=[0, 0.3]$. Empieza por escribir un \textit{pseudocódigo}, en el que anotes cada uno de los pasos de tu algoritmo.
+Considera los parámetros $P_{env}=95, \gamma_B=1,  \delta_P=1, \kappa_B= 0.5, \gamma_{R}=10, \delta_B=0.1, 
+R_{on}=16.7, P^+=40, P^-= 26.6, m=6.71$ y $\beta=6.71$     
+\item Considera los parámetros:
+\begin{itemize}
+\item $\kappa_P=.6, \alpha_I=0.25$ % homeostasis
+\item $\kappa_B=0.6, \alpha_I=0.0325$ % Bistability
+\item $\kappa_B=0.9, \alpha_I=0.25$ % Bistability
+\item $\kappa_B=0.9, \alpha_I=0.0325$ % Bistability
+\end{itemize}
+Y las condiciones iniciales $P(0)=41$ o $P(0)=55$; y $B(0)=1$.
+Dado tu análisis anterior, ¿qué comportamientos cualitativos esperas?  
+\end{enumerate}
+
+\bibliographystyle{unsrt}
+
+\bibliography{C:/Users/Elisa/Dropbox/Postdoc_2015/Literature/library}
+
+\end{document}
+
+
+
